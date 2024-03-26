@@ -1,12 +1,3 @@
-libname ofto 'C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Dataset oftomologie en analyse\Data Tables - Text files';
-
-data wide;
-set ofto.singles2;
-run;
-proc sort data=wide;
-by PtId time;
-run;
-
 /*wide to long data*/
 data longdata;
 set wide;
@@ -120,7 +111,6 @@ run;
 proc glm data =manova_wide;
 model etds_baseline etds_4w etds_8w etds_12w etds_16w= group/solution;
 manova h=_all_;
-repeated dose 5 polynomial / summary printm;
 run;
 
 *LMM with random effect of the subject*;
