@@ -1,5 +1,3 @@
-libname sim 'C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Grote simulatie\Datasets/checks';
-
 /*import macro*/
 %macro import_xlsx(filename);
 filename xlsx "C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Grote simulatie\Datasets/check/&filename..xlsx" termstr=LF;
