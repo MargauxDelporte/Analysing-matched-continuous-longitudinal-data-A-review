@@ -1,6 +1,6 @@
 /*import macro*/
 %macro import_xlsx(filename);
-filename xlsx "C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Grote simulatie\Datasets/check/&filename..xlsx" termstr=LF;
+filename xlsx "C:\Users\&filename..xlsx" termstr=LF;
 proc import
   datafile=xlsx
   out=work.&filename.
@@ -11,17 +11,17 @@ run;
 %mend;
 
 /*import a list with the names of files to import*/
-proc import datafile = 'C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Grote simulatie\Datasets\list.txt'
+proc import datafile = 'C:\Users\list.txt'
  out = files
  dbms = dlm
  replace;
 run;
-proc import datafile = 'C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Grote simulatie\Datasets\list_l.txt'
+proc import datafile = 'C:\Users\list_l.txt'
  out = files_l
  dbms = dlm
  replace;
 run;
-proc import datafile = 'C:\Users\u0118563\OneDrive - KU Leuven\Projecten\Gepaarde data\Grote simulatie\Datasets\list_w.txt'
+proc import datafile = 'C:\Users\list_w.txt'
  out = files_w
  dbms = dlm
  replace;
