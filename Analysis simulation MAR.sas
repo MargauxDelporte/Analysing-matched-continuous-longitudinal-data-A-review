@@ -35,38 +35,101 @@ set files;
 call execute('%import_xlsx('!!trim(filename)!!');');
 run;
 
-/*
+/* toy example*/
 data filename;
-set simulated_data_long0;
+set simulated_data_long86;
 run;
 
-proc sort data=filename; by treated;run;
-data filename;
+proc sort data=filename; by id time;run;
+data filename_MAR_l;
 set filename;
 call streaminit(123); 
-if(treated=0)then 
-missingvalue=rand("Bernoulli", 0.05);
-if(treated=1)then 
-missingvalue=rand("Bernoulli", 0.25);
+time2=time-1;
+t=time2;
+prev=lag(response);
+p=probnorm(prev-3);
+missingvalue=rand("Bernoulli", p);
 run;
-proc means data=filename;
-var missingvalue;
-by treated;
-run;*/
+proc sort data=filename_MAR_l; by id time;run;
+data filename_MAR_l;
+set filename_MAR_l;
+lag=lag(missingvalue);
+lag2 =lag2(missingvalue);
+lag3=lag3(missingvalue);
+lag4=lag4(missingvalue);
+lag5=lag5(missingvalue);
+run;
+data filename_MAR_l;
+set filename_MAR_l;
+if(time=1) then missingvalue=0;
+if(time=3 & lag(missingvalue)=1) then missingvalue=0;
+run;
+data filename_MAR_l;
+set filename_MAR_l;
+if(time=4 & lag(missingvalue)=1) then missingvalue=0;
+run;
+data filename_MAR_l;
+set filename_MAR_l;
+if(time=5 & lag(missingvalue)=1) then missingvalue=0;
+run;
+data filename_MAR_l;
+set filename_MAR_l;
+keep pair id time time2 t treated response;
+where missingvalue=0;
+run;
+proc sort data=filename_MAR_l; by pair time;run;
+proc transpose data=filename_MAR_l out=&filename._MAR_w prefix=resp;
+by pair time;
+id treated;
+var response;
+run;
+data filename_MAR_w;
+set filename_MAR_w;
+resp_treated=resp1;
+time2=time-1;
+t=time2;
+resp_nontreated=resp0;
+difference=resp_treated-resp_nontreated;
+drop drop _name_ _label_ resp1 resp0;
+run;
+
 /*adapt data: missingness, time score and difference score*/
 %macro adapt_MAR(filename);
+proc sort data=&filename; by id time;run;
 data &filename._MAR_l;
 set &filename;
 call streaminit(123); 
 time2=time-1;
 t=time2;
-if(treated=0)then 
-missingvalue=rand("Bernoulli", 0.05);
-if(treated=1)then 
-missingvalue=rand("Bernoulli", 0.25);
+prev=lag(response);
+p=probnorm(prev-3);
+missingvalue=rand("Bernoulli", p);
+run;
+proc sort data=&filename._MAR_l; by id time;run;
+data &filename._MAR_l;
+set &filename._MAR_l;
+lag=lag(missingvalue);
+lag2 =lag2(missingvalue);
+lag3=lag3(missingvalue);
+lag4=lag4(missingvalue);
+lag5=lag5(missingvalue);
 run;
 data &filename._MAR_l;
 set &filename._MAR_l;
+if(time=1) then missingvalue=0;
+if(time=3 & lag(missingvalue)=1) then missingvalue=0;
+run;
+data &filename._MAR_l;
+set &filename._MAR_l;
+if(time=4 & lag(missingvalue)=1) then missingvalue=0;
+run;
+data &filename._MAR_l;
+set &filename._MAR_l;
+if(time=5 & lag(missingvalue)=1) then missingvalue=0;
+run;
+data &filename._MAR_l;
+set &filename._MAR_l;
+keep pair id time time2 t treated response;
 where missingvalue=0;
 run;
 proc sort data=&filename._MAR_l; by pair time;run;
@@ -195,8 +258,7 @@ WORK.SIMULATED_DATA_LONG99_MAR_L
 ;
 Run;
 
-proc means data=stack;
-var missingvalue;run;
+proc freq data=stack;tables time;run;
 ************************************************;
 *analysis:loop over all the datasets and combine the estimates first for each analysis**;
 ************************************************;
@@ -352,7 +414,6 @@ class pair id t;
 model response=time2 treated time2*treated/solution ;
 random intercept/subject=pair;
 repeated t/subject=id type=arh(1) r rcorr;
-where missingvalue=0;
 ods output SolutionF=parmsn2;
 run;
 data parmsn2;
